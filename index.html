@@ -1,0 +1,562 @@
+<!DOCTYPE html> 
+
+<html>
+<head>
+  <title>TGR Quiz</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="style.css" rel="stylesheet" type="text/css" />
+  <link rel="preload" href="/fonts/Date Stamp Alt Bold.woff" as="font" crossorigin="anonymous" />
+</head> 
+
+<body> 
+
+
+
+
+
+  <div id="racer">
+
+
+
+
+
+    <div class="container">
+
+
+
+
+      <!-- INTRO -->
+         
+         <div class="box intro">
+   
+           <img class='logo' src="./images/logo-tgr.png" alt="Toyota Logo" />
+   
+           <div class="intro-text">Nå din destinasjon i bil-quizen,<br />og vinn en tur for to til California!</div>
+   
+           <button class="start-button">Start spill</button>
+             </div>
+   
+   
+   
+               <!-- COUNTDOWN TIMER -->
+       <div class="countdown-timer hide">
+         <div class="red"><img class="logo" src="images/logo-tgr.png" alt="" />03</div>
+       </div>
+   
+   
+   
+       <!-- QUESTIONS -->
+             <div class="box quiz hide">
+       
+               <div class="question">Hva er Toyota Gazoo Racing?</div>
+   
+               <div id="answer-buttons" class="answers">
+               </div>
+   
+             <div class="points">
+               <div id=1 class="circle current"></div>
+               <div id=2 class="line"></div>
+               <div id=2 class="circle"></div>
+               <div id=3 class="line"></div>
+               <div id=3 class="circle"></div>
+               <div id=4 class="line"></div>
+               <div id=4 class="circle"></div>
+               <div id=5 class="line"></div>
+               <div id=5 class="circle"></div>
+               <div id=6 class="line"></div>
+               <div id=6 class="circle"></div>
+               <div id=7 class="line"></div>
+               <div id=7 class="circle"></div>
+               <div id=8 class="line"></div>
+               <div id=8 class="circle"></div>
+             </div>
+   
+               <div class="timer"></div>
+   
+                 </div>
+   
+   
+   
+                     <!-- YOU WON -->
+   
+                 <div class="box win hide">
+       
+                   <h1>BRA JOBBA!</h1>
+                   <p class="finishTime"></p>
+   
+                   <button class="play-another">Spill igjen</button>
+                   <button>Del ditt resultat</button>
+   
+                   <img class='logo' src="./images/logo-tgr.png" alt="Toyota Logo" />
+       
+                   <a>Les mer om bil-quizen her</a>
+       
+                     </div>
+   
+   
+   
+   
+           
+   
+   
+   
+                     <!-- YOU LOST -->
+                     
+                     <div class="box lose hide">
+       
+                       <h1>TIDEN ER UTE!</h1>
+                       <p class="steps"></p>
+       
+                       <button class="play-again">Spill igjen</button>
+       
+                       <button>Del med andre</button>
+           
+                       <p class="numberOfPoints"></p>
+   
+                       <img class='logo' src="./images/logo-tgr.png" alt="Toyota Logo" />
+           
+                       <a>Les mer om bil-quizen her</a>
+           
+                         </div>
+   
+       </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+    <canvas id="canvas">
+    </canvas>
+
+
+    <div class="mute-box">
+      <img class="mute" src="images/button-unmute.png" alt="mute-button">
+      <img class="unmute hide" src="images/button-mute.png" alt="unmute-button">
+    </div>
+
+  </div>
+
+
+
+  <script src="car.js"></script>
+  <script src="quiz.js"></script>
+  <script>
+
+
+
+
+function accelerate() {
+
+keyFaster = true;
+
+setTimeout(function () {
+  
+keyFaster = false;
+
+
+}, 1200);
+
+}
+
+function speedUp () {
+
+
+keyFaster = true;
+
+setTimeout(function () {
+  
+keyFaster = false;
+keySlower = true;
+
+}, 1050);
+
+setTimeout(function () {
+  
+  keySlower = false;
+  
+  }, 1500);
+
+}
+
+function slowDown () {
+
+
+keySlower = true;
+
+setTimeout(function () {
+
+keySlower = false;
+
+}, 300);
+
+setTimeout(function () {
+
+keyFaster = true;
+
+}, 800);
+
+
+setTimeout(function () {
+
+keyFaster = false;
+
+}, 1500);
+
+
+}
+
+function breakingDown() {
+
+console.log("breaking!");
+
+keySlower = true;
+
+
+setTimeout(function () {
+  
+  keySlower = false;
+
+
+  }, 1500);
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+    var fps            = 60;                      // how many 'update' frames per second
+    var step           = 1/fps;                   // how long is each frame (in seconds)
+    var width          = 768;                    // logical canvas width
+    var height         = 768;                     // logical canvas height
+    var segments       = [];                      // array of road segments
+    var canvas         = Dom.get('canvas');       // our canvas...
+    var ctx            = canvas.getContext('2d'); // ...and its drawing context
+    var background     = null;                    // our background image (loaded below)
+    var sprites        = null;                    // our spritesheet (loaded below)
+    var resolution     = null;                    // scaling factor to provide resolution independence (computed)
+    var roadWidth      = 1500;                    // actually half the roads width, easier math if the road spans from -roadWidth to +roadWidth
+    var segmentLength  = 200;                     // length of a single segment
+    var rumbleLength   = 5;                       // number of segments per red/white rumble strip
+    var trackLength    = null;                    // z length of entire track (computed)
+    var lanes          = 2;                       // number of lanes
+    var fieldOfView    = 100;                     // angle (degrees) for field of view
+    var cameraHeight   = 1500;                    // z height of camera
+    var cameraDepth    = null;                    // z distance camera is from screen (computed)
+    var drawDistance   = 300;                     // number of segments to draw
+    var playerX        = 0;                       // player x offset from center of road (-1 to 1 to stay independent of roadWidth)
+    var playerZ        = null;                    // player relative z distance from camera (computed)
+    var fogDensity     = 5;                       // exponential fog density
+    var position       = 0;                       // current camera Z position (add playerZ to get player's absolute Z position)
+    var speed          = 0;                       // current speed
+    var maxSpeed       = segmentLength/step;      // top speed (ensure we can't move more than 1 segment in a single frame to make collision detection easier)
+    var accel          =  maxSpeed/2;             // acceleration rate - tuned until it 'felt' right
+    var breaking       = -maxSpeed;               // deceleration rate when braking
+    var decel          = -maxSpeed;             // 'natural' deceleration rate when neither accelerating, nor braking
+    var offRoadDecel   = -maxSpeed/2;             // off road deceleration is somewhere in between
+    var offRoadLimit   =  maxSpeed/4;             // limit when off road deceleration no longer applies (e.g. you can always go at least this speed even when off road)
+
+
+    var keyLeft        = false;
+    var keyRight       = false;
+    var keyFaster      = false;
+    var keySlower      = false;
+
+
+
+    //=========================================================================
+    // UPDATE THE GAME WORLD
+    //=========================================================================
+
+    function update(dt) {
+
+      // var n, car, carW, sprite, spriteW;
+      // var playerSegment = findSegment(position+playerZ);
+      // var playerW       = SPRITES.PLAYER_STRAIGHT.w * SPRITES.SCALE;
+      var speedPercent  = speed/maxSpeed;
+      var dx            = dt * 2 * speedPercent; // at top speed, should be able to cross from left to right (-1 to 1) in 1 second
+      // var startPosition = position;
+
+
+
+      position = Util.increase(position, dt * speed, trackLength);
+
+
+      if (keyFaster)
+        speed = Util.accelerate(speed, accel, dt);
+      else if (keySlower)
+        speed = Util.accelerate(speed, breaking, dt);
+      // else
+      //   speed = Util.accelerate(speed, decel, dt);
+
+
+   
+      speed   = Util.limit(speed, 0, maxSpeed); // or exceed maxSpeed
+
+    }
+
+    //-------------------------------------------------------------------------
+
+
+
+
+
+    //-------------------------------------------------------------------------
+
+
+    //=========================================================================
+    // RENDER THE GAME WORLD
+    //=========================================================================
+
+    function render() {
+
+      var baseSegment   = findSegment(position);
+      var basePercent   = Util.percentRemaining(position, segmentLength);
+      var playerSegment = findSegment(position+playerZ);
+      var playerPercent = Util.percentRemaining(position+playerZ, segmentLength);
+      var playerY       = Util.interpolate(playerSegment.p1.world.y, playerSegment.p2.world.y, playerPercent);
+      var maxy          = height;
+
+      var x  = 0;
+      var dx = - (baseSegment.curve * basePercent);
+
+      ctx.clearRect(0, 0, width, height);
+
+      Render.background(ctx, background, width, height, BACKGROUND.SKY);
+      Render.background(ctx, background, width, height, BACKGROUND.HILLS);
+      Render.background(ctx, background, width, height, BACKGROUND.TREES);
+
+      var n, i, segment, car, sprite, spriteScale, spriteX, spriteY;
+
+      for(n = 0 ; n < drawDistance ; n++) {
+
+        segment        = segments[(baseSegment.index + n) % segments.length];
+        segment.looped = segment.index < baseSegment.index;
+        segment.fog    = Util.exponentialFog(n/drawDistance, fogDensity);
+        segment.clip   = maxy;
+
+        Util.project(segment.p1, (playerX * roadWidth) - x,      playerY + cameraHeight, position - (segment.looped ? trackLength : 0), cameraDepth, width, height, roadWidth);
+        Util.project(segment.p2, (playerX * roadWidth) - x - dx, playerY + cameraHeight, position - (segment.looped ? trackLength : 0), cameraDepth, width, height, roadWidth);
+
+        x  = x + dx;
+        dx = dx + segment.curve;
+
+        if ((segment.p1.camera.z <= cameraDepth)         || // behind us
+            (segment.p2.screen.y >= segment.p1.screen.y) || // back face cull
+            (segment.p2.screen.y >= maxy))                  // clip by (already rendered) hill
+          continue;
+
+        Render.segment(ctx, width, lanes,
+                       segment.p1.screen.x,
+                       segment.p1.screen.y,
+                       segment.p1.screen.w,
+                       segment.p2.screen.x,
+                       segment.p2.screen.y,
+                       segment.p2.screen.w,
+                       segment.fog,
+                       segment.color);
+
+        maxy = segment.p1.screen.y;
+      }
+
+      for(n = (drawDistance-1) ; n > 0 ; n--) {
+        segment = segments[(baseSegment.index + n) % segments.length];
+
+        for(i = 0 ; i < segment.cars.length ; i++) {
+          car         = segment.cars[i];
+          sprite      = car.sprite;
+          spriteScale = Util.interpolate(segment.p1.screen.scale, segment.p2.screen.scale, car.percent);
+          spriteX     = Util.interpolate(segment.p1.screen.x,     segment.p2.screen.x,     car.percent) + (spriteScale * car.offset * roadWidth * width/2);
+          spriteY     = Util.interpolate(segment.p1.screen.y,     segment.p2.screen.y,     car.percent);
+          Render.sprite(ctx, width, height, resolution, roadWidth, sprites, car.sprite, spriteScale, spriteX, spriteY, -0.5, -1, segment.clip);
+        }
+
+        for(i = 0 ; i < segment.sprites.length ; i++) {
+          sprite      = segment.sprites[i];
+          spriteScale = segment.p1.screen.scale;
+          spriteX     = segment.p1.screen.x + (spriteScale * sprite.offset * roadWidth * width/2);
+          spriteY     = segment.p1.screen.y;
+          Render.sprite(ctx, width, height, resolution, roadWidth, sprites, sprite.source, spriteScale, spriteX, spriteY, (sprite.offset < 0 ? -1 : 0), -1, segment.clip);
+        }
+
+        if (segment == playerSegment) {
+          Render.player(ctx, width, height, resolution, roadWidth, sprites, speed/maxSpeed,
+                        cameraDepth/playerZ,
+                        width/2,
+                        (height/2) - (cameraDepth/playerZ * Util.interpolate(playerSegment.p1.camera.y, playerSegment.p2.camera.y, playerPercent) * height/2),
+                        speed * (keyLeft ? -1 : keyRight ? 1 : 0),
+                        playerSegment.p2.world.y - playerSegment.p1.world.y);
+        }
+      }
+    }
+
+    function findSegment(z) {
+      return segments[Math.floor(z/segmentLength) % segments.length]; 
+    }
+
+    //=========================================================================
+    // BUILD ROAD GEOMETRY
+    //=========================================================================
+
+    function lastY() { return (segments.length == 0) ? 0 : segments[segments.length-1].p2.world.y; }
+
+    function addSegment(curve, y) {
+      var n = segments.length;
+      segments.push({
+          index: n,
+             p1: { world: { y: lastY(), z:  n   *segmentLength }, camera: {}, screen: {} },
+             p2: { world: { y: y,       z: (n+1)*segmentLength }, camera: {}, screen: {} },
+          curve: curve,
+        sprites: [],
+           cars: [],
+          color: Math.floor(n/rumbleLength)%2 ? COLORS.DARK : COLORS.LIGHT
+      });
+    }
+
+    function addSprite(n, sprite, offset) {
+      segments[n].sprites.push({ source: sprite, offset: offset });
+    }
+
+    function addRoad(enter, hold, leave, curve, y) {
+      var startY   = lastY();
+      var endY     = startY + (Util.toInt(y, 0) * segmentLength);
+      var n, total = enter + hold + leave;
+      for(n = 0 ; n < enter ; n++)
+        addSegment(Util.easeIn(0, curve, n/enter), Util.easeInOut(startY, endY, n/total));
+      for(n = 0 ; n < hold  ; n++)
+        addSegment(curve, Util.easeInOut(startY, endY, (enter+n)/total));
+      for(n = 0 ; n < leave ; n++)
+        addSegment(Util.easeInOut(curve, 0, n/leave), Util.easeInOut(startY, endY, (enter+hold+n)/total));
+    }
+
+    var ROAD = {
+      LENGTH: { NONE: 0, SHORT:  25, MEDIUM:   50, LONG:  100 }
+    };
+
+    function addStraight(num) {
+      num = num || ROAD.LENGTH.MEDIUM;
+      addRoad(num, num, num, 0, 0);
+    }
+
+    function resetRoad() {
+      segments = [];
+
+      addStraight();
+
+      addStraight();
+
+      resetSprites();
+
+      segments[findSegment(playerZ).index + 2].color = COLORS.START;
+      segments[findSegment(playerZ).index + 3].color = COLORS.START;
+      for(var n = 0 ; n < rumbleLength ; n++)
+        segments[segments.length-1-n].color = COLORS.FINISH;
+
+      trackLength = segments.length * segmentLength;
+    }
+
+    function resetSprites() {
+      var n, i;
+
+      for(n = 20 ; n < 300 ; n += 30 + Math.floor(n/100)) {
+        addSprite(n, SPRITES.PALM_LEFT, -2 + Math.random()*0.5);
+      }
+
+      for(n = 20 ; n < 300 ; n += 30 + Math.floor(n/100)) {
+        addSprite(n, SPRITES.PALM_RIGHT, 1.2 + Math.random()*0.5);
+      }
+
+      for(n = 5 ; n < 300 ; n += 30 + Math.floor(n/100)) {
+        addSprite(n, SPRITES.PALM_LEFT, -1.2 + Math.random()*0.5);
+      }
+
+      for(n = 5 ; n < 300 ; n += 30 + Math.floor(n/100)) {
+        addSprite(n, SPRITES.PALM_RIGHT, 2 + Math.random()*0.5);
+      }
+
+
+
+
+
+
+
+      for(n = 35 ; n < 300 ; n += 30 + Math.floor(n/100)) {
+        addSprite(n, SPRITES.PALM_LEFT, -5 + Math.random()*0.5);
+      }
+
+      for(n = 35 ; n < 300 ; n += 30 + Math.floor(n/100)) {
+        addSprite(n, SPRITES.PALM_RIGHT, 5 + Math.random()*0.5);
+      }
+
+    }
+
+
+    //=========================================================================
+    // THE GAME LOOP
+    //=========================================================================
+
+    Game.run({
+      canvas: canvas, render: render, update: update, step: step,
+      images: ["background", "sprites"],
+      keys: [
+        { keys: [KEY.LEFT,  KEY.A], mode: 'down', action: function() { keyLeft   = false;  } },
+        { keys: [KEY.RIGHT, KEY.D], mode: 'down', action: function() { keyRight  = false;  } },
+        { keys: [KEY.UP,    KEY.W], mode: 'down', action: function() { keyFaster = false;  } },
+        { keys: [KEY.DOWN,  KEY.S], mode: 'down', action: function() { keySlower = false;  } },
+        { keys: [KEY.LEFT,  KEY.A], mode: 'up',   action: function() { keyLeft   = false; } },
+        { keys: [KEY.RIGHT, KEY.D], mode: 'up',   action: function() { keyRight  = false; } },
+        { keys: [KEY.UP,    KEY.W], mode: 'up',   action: function() { keyFaster = false; } },
+        { keys: [KEY.DOWN,  KEY.S], mode: 'up',   action: function() { keySlower = false; } }
+      ],
+      ready: function(images) {
+        background = images[0];
+        sprites    = images[1];
+        reset();
+      }
+    });
+
+    function reset(options) {
+      options       = options || {};
+      canvas.width  = width  = Util.toInt(options.width,          width);
+      canvas.height = height = Util.toInt(options.height,         height);
+      lanes                  = Util.toInt(options.lanes,          lanes);
+      roadWidth              = Util.toInt(options.roadWidth,      roadWidth);
+      cameraHeight           = Util.toInt(options.cameraHeight,   cameraHeight);
+      drawDistance           = Util.toInt(options.drawDistance,   drawDistance);
+      fogDensity             = Util.toInt(options.fogDensity,     fogDensity);
+      fieldOfView            = Util.toInt(options.fieldOfView,    fieldOfView);
+      segmentLength          = Util.toInt(options.segmentLength,  segmentLength);
+      rumbleLength           = Util.toInt(options.rumbleLength,   rumbleLength);
+      cameraDepth            = 1 / Math.tan((fieldOfView/2) * Math.PI/180);
+      playerZ                = (cameraHeight * cameraDepth);
+      resolution             = height/480;
+
+
+      if ((segments.length==0) || (options.segmentLength) || (options.rumbleLength))
+        resetRoad(); // only rebuild road when necessary
+    }
+
+
+
+  </script>
+
+</body> 
+</html>

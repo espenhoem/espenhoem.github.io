@@ -1,0 +1,324 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+
+
+
+#racer        { position: absolute; bottom: 0%; z-index: 0; width: 100%; height: 100%; border: none; background-color: #0a039b; }
+#canvas       { position: absolute; bottom: 0%; left: 50%; transform: translateX(-50%); z-index: 0; width: 50%;  z-index: 0; background-color: #0a039b; }
+
+
+
+@media only screen and (max-width: 1000px) {
+    #canvas       { width: 100%; }
+  }
+
+
+@font-face {
+    font-family: "DateStampAltBold";
+    src: local("DateStampAltBold"),
+     url("fonts/Date\ Stamp\ Alt\ Bold.woff") format("woff");
+    font-weight: bold;
+    }
+
+body {
+    background: #0a039b;
+    height: 100vh;
+}
+
+a {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+   }
+
+.mute-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    bottom: 0%;
+    right: 0;
+    margin: 20px;
+    padding: 15px;
+    border-radius: 10px;
+    background-color: #282830;
+    cursor: pointer;
+}
+
+.mute {
+    display: flex;
+    width: 30px;
+}
+
+.unmute {
+    display: flex;
+    width: 30px;
+}
+
+.box {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 40px;
+    width: 90%;
+    margin: 30px;
+    max-width: 700px;
+    background: #282830;
+    color: #fff;
+    border: 5px solid rgb(255, 255, 255);
+    border-radius: 25px;
+}
+
+.intro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.quiz {
+    display: flex;
+    gap: 20px;
+    animation: opaque .2s ease-in-out;
+}
+
+.win {
+    display: flex;
+    gap: 20px;
+}
+
+.lose {
+    display: flex;
+    gap: 20px;
+}
+
+.logo {
+    width: 120px;
+}
+
+button {
+    display: block;
+    outline: none;
+    border: none;
+    background: rgb(255, 255, 255);
+    color: #000;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover,
+button.active {
+    background: rgb(210, 210, 210);
+}
+
+.answers {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.answer {
+    width: 100%;
+    background: rgb(255, 255, 255);
+    color: #000;
+    padding: 10px;
+    border-radius: 20px;
+    transform: translateX(0);
+}
+
+.answer.correct {
+    background-color: rgb(49, 146, 49);
+    color: #fff;
+}
+
+.answer.wrong {
+    background-color: rgb(204, 56, 56);
+    color: #fff;
+    animation: shake .3s ease-in-out;
+}
+
+@keyframes shake {
+
+    0% {
+        transform: translateX(0);
+    }
+    33% {
+        transform: translateX(20px);
+    }
+    66% {
+        transform: translateX(-20px);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+
+@keyframes opaque {
+
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+
+}
+
+
+
+.points {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+
+.circle {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: none;
+    border: 1px solid white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    transform: scale(1);
+    transition: all 1s ease;
+}
+
+.current {
+    box-shadow: inset 0px 0px 0px 2px white;
+    transform: scale(1.3);
+}
+
+.line {
+    height: 1px;
+    transform: scaleY(1);
+    background-color: white;
+    width: 15px;
+    transition: all 1s ease;
+}
+
+.currentLine {
+    transform: scaleY(4);
+}
+
+
+.correctCircle {
+    background-color: white;
+}
+
+.correctCircle:after {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    content: '\2713';
+    font-weight: bold;
+    color: rgb(25, 25, 26);
+    font-size: 12px;
+}
+
+.timer {
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #282830;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0px;
+    padding: 20px;
+    color: #FC0;
+    text-shadow: #FC0 0px 0px 15px;
+    font-family: "DateStampAltBold";
+    font-size: 36px;
+    width: 150px;
+    height: 40px;
+    font-weight: bold;
+    border: 5px solid rgb(255, 255, 255);
+}
+
+.timer:before {
+    position: absolute;
+    content: '88:88';
+    color:rgb(68, 69, 69);
+    text-shadow: none;
+    z-index: -1;
+}
+
+
+
+
+
+
+
+
+.countdown-timer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1;
+    background-color: #282830;
+    padding-top: 20px;
+    margin: 50px;
+    color: #FC0;
+    text-shadow: #FC0 0px 0px 15px;
+    font-family: "DateStampAltBold";
+    font-size: 100px;
+    font-weight: bold;
+    border: 5px solid rgb(255, 255, 255);
+
+}
+
+
+.countdown-timer:before {
+    position: absolute;
+    content: '88';
+    color:rgb(68, 69, 69);
+    text-shadow: none;
+    z-index: -1;
+}
+
+
+
+.red {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0px 50px;
+    bottom: 0;
+    width: 100%;
+    height: 75px;
+    background-color: #282830;
+    background: linear-gradient(172deg, rgba(0,0,0,0) 70%, #FF0022 100%);
+}
+
+
+
+
+.hide {
+    display: none;
+}
